@@ -4,7 +4,7 @@ module.exports = {
         path: __dirname + '/',
         filename: 'bundle.js'
     },
-    devtool: 'source-maps',
+    // devtool: 'source-maps',
     module: {
         loaders: [{
             test: /\.jsx?$/,
