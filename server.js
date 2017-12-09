@@ -1,6 +1,5 @@
 const express = require('express');
 const http = require('http');
-// const bodyParser = require('body-parser');
 const socketIo = require('socket.io');
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
@@ -9,11 +8,9 @@ const webpackConfig = require('./webpack.config.js');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-
-// app.use(bodyParser.urlencoded({ extended: false }));
+const PORT = 3000;
 
 var sessionGame = {};
-var game;
 var currentPlayer;
 var victory = {};
 
@@ -27,19 +24,15 @@ const numBoard = [
 //Выигрышные комбинации
 const WINNINGCOMBINATIONS = [7, 56, 448, 73, 146, 292, 273, 84];
 
-//Класс игрок
+//Класс игрока
 class Player {
 	constructor(name, num, char, socketID, turn) {
 		this.name = name;
 		this.num = num;
 		this.char = char;
 		this.socketID = socketID;
-		//Текущая очередь на ход
 		this.currentTurn = turn;
 		this.currentCombo = 0;
-	}
-	getName() {
-		return this.name;
 	}
 
 	/**
@@ -47,25 +40,26 @@ class Player {
 	* @param val  текущая нажатай плитка формата tile_{number}
 	* @return array содержаший 2 числовых значения (линия и столбец) нажатой плитки [row, col];
 	*/
-	handlerClickTile(data, tut) {
+	handlerClickTile(data, checkTurn) {
 	    let rows = parseInt(data.tile_id.split('_')[1][0], 10);
 	    let cols = parseInt(data.tile_id.split('_')[1][1], 10);
 	    let value = parseInt(data.tile_id.split('_')[1]);
 	    updateBoard(value, data);
-	    if (tut) {
+	    if (checkTurn) {
 	    	this.bitwiseShift([rows, cols]);
 	    }
-	    
 	}
+
 	/*
 	*@param arr массив, который содержит текущее значение строки и столбца
 	*@return вызывает функцию для обновления комбинации
 	*/
-	bitwiseShift(arr){
+	bitwiseShift(arr) {
 		let rows = arr[0];
 		let cols = arr[1];
 		this.updateCombination(1 << ((rows * 3) + cols));
 	}
+
 	/**Обновление комбинации
 	*@param val текущее значение
 	*@return вызывает функцию для проверки победной комбинации
@@ -74,10 +68,12 @@ class Player {
 		this.currentCombo += val;
 		this.checkWinner();			
     }
+
     //Вывод текущей комбинации
 	getCurrentCombination() {
 		return parseInt(this.currentCombo);
 	}
+
 	/**
 	* Проверка выигрышной комбинации
 	* @param currentPlayer текущий игрок
@@ -96,6 +92,7 @@ class Player {
 			}
 		});
 	}
+
 	/**
 	* Объявление победителя
 	* @param curr текущий игрок
@@ -104,7 +101,6 @@ class Player {
 	winnerAnnounce(curr) {
 		victory["player"] = curr;
 	}
-
 }
 
 /**
@@ -141,7 +137,6 @@ function drawBoard () {
 //Создание нового соединения
 io.on('connection', (socket) => {
 	console.log('connected!');
-
 	//Создание игровой сессии
 	socket.on('create session', (data) => {
 		if (data.sessionCode) {
@@ -174,6 +169,8 @@ io.on('connection', (socket) => {
 			} else {
 				console.log("Сессия занята");
 			}
+		} else {
+			console.log('Сессия не найдена');
 		}
 
 
@@ -207,9 +204,9 @@ io.on('connection', (socket) => {
 		} else if (data.socketStateId == playerTwo.socketID) {
 			currentPlayer = playerTwo;
 		}
-		let tutu = currentPlayer.currentTurn;
+		let checkTurn = currentPlayer.currentTurn;
 		//Выполнения ряда функций (обновление поля, чек победы и т.п.)
-		currentPlayer.handlerClickTile(data, tutu);
+		currentPlayer.handlerClickTile(data, checkTurn);
 
 		//Если в переменной объявился объеккт => игра закончена
 		if (typeof victory == "object" && Object.keys(victory).length >= 1) {
@@ -235,15 +232,16 @@ io.on('connection', (socket) => {
 		});
 
 	});
-	 //Получение сообщения и отправка его только второму игроку
-	  socket.on('message', (data) => {
-	    socket.broadcast.to(data.sessionCode).emit('message', {
-	      playerName: data.playerName,
-	      text: data.text
-	    })
-	  })
+	//Получение сообщения и отправка его только второму игроку
+	socket.on('message', (data) => {
+		socket.broadcast.to(data.sessionCode).emit('message', {
+			playerName: data.playerName,
+			text: data.text
+		})
+	})
 })
 
 app.use(express.static(__dirname + '/dist'));
 app.use(webpackDevMiddleware(webpack(webpackConfig)));
-server.listen(3000);
+server.listen(PORT);
+console.log(`Server listening on port  ${PORT}`);

@@ -15,7 +15,7 @@ export default class Board extends Component {
 				['','',''],
 				['','','']
 			],
-			sound: false
+			sfx: false
 		}
 	}
 
@@ -36,7 +36,11 @@ export default class Board extends Component {
 	}
 
 	clickTile = (e) => {
-
+		this.state.sfx = 
+		<Sound
+			url="./static/sfx/click.mp3"
+			playStatus={Sound.status.PLAYING}
+		/>
 		e.preventDefault();
 			if (this.state.turns) {
 				this.state.socket.emit('click', {
@@ -60,6 +64,7 @@ export default class Board extends Component {
 								onClick={this.clickTile}
 							>
 							{this.state.board[0][0]}
+							{this.state.sfx}
 							</button>
 						</td>
 						<td>
