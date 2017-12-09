@@ -26,6 +26,7 @@ const numBoard = [
 
 //Выигрышные комбинации
 const WINNINGCOMBINATIONS = [7, 56, 448, 73, 146, 292, 273, 84];
+
 //Класс игрок
 class Player {
 	constructor(name, num, char, socketID, turn) {
@@ -40,6 +41,7 @@ class Player {
 	getName() {
 		return this.name;
 	}
+
 	/**
 	* Получение текущей позиции, срабатывает когда игрок нажимает на поле 
 	* @param val  текущая нажатай плитка формата tile_{number}
@@ -160,7 +162,6 @@ io.on('connection', (socket) => {
 	//Подключение к игровой сессии
 	socket.on('join session', (data) => {
 		//В сессии могут быть лишь 2 человека
-
 		if (Object.keys(sessionGame).indexOf(data.sessionCode) != -1) {
 			if (!sessionGame[data.sessionCode].hasOwnProperty("player2")) {
 				currentPlayer = sessionGame[data.sessionCode]["player1"];

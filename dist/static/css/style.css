@@ -61,3 +61,8 @@ input[type="text"] {
 	padding: 10px 10px;
 	font-family: inherit;
 }
+button.tile {
+	width: 80px;
+	height: 80px;
+	font-size: 60px;
+}
