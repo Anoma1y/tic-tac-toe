@@ -167,7 +167,10 @@ io.on('connection', (socket) => {
 				currentPlayer = sessionGame[data.sessionCode]["player1"];
 				sessionGame[data.sessionCode]["player2"] = new Player(data.name, 2, 'O',  socket.id, false);
 				socket.join(data.sessionCode);
-				io.in(data.sessionCode).emit('game start');			
+				io.in(data.sessionCode).emit('game start', {
+					playerOneName: sessionGame[data.sessionCode]["player1"].name,
+					playerTwoName: sessionGame[data.sessionCode]["player2"].name
+				});			
 			} else {
 				console.log("Сессия занята");
 			}

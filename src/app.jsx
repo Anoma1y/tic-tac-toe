@@ -16,7 +16,10 @@ class TicTacToe extends Component {
             winner: "",
             createButton: false,
             currentPlayer: "",
+            enemyPlayer: "",
+            sessionCreate: false
         }
+        this.currentTurnPlayer = this.currentTurnPlayer.bind(this)
     }
 
     componentWillMount() {
@@ -28,9 +31,11 @@ class TicTacToe extends Component {
         //При подключении второго игрока, начинается игра
         //Переводит состояние start в true
         this.socket.on('game start', (data) => {
-            this.setState({ start: true });
+            this.setState({ 
+                start: true,
+                enemyPlayer: this.getEnemyPlayer(data.playerOneName, data.playerTwoName)
+            });
         });
-
 
         this.socket.on('game end', (data) => {
             this.setState({
@@ -50,7 +55,8 @@ class TicTacToe extends Component {
         this.setState({
             sessionCode: sessionCode.toString(),
             createButton: !this.state.createButton,
-            currentPlayer: this.state.playerName
+            currentPlayer: this.state.playerName,
+            sessionCreate: !this.state.sessionCreate
         });
         this.socket.emit('create session', {
             sessionCode: sessionCode,
@@ -68,6 +74,12 @@ class TicTacToe extends Component {
         }
     }
 
+    //Получение имени противника
+    getEnemyPlayer = (first, second) => { 
+        return first != this.state.playerName ? first : second;
+    }
+
+    //Имя игрока который ходит в данный момент
     currentTurnPlayer = (player) => {
         this.setState({
             currentPlayer: player
@@ -122,7 +134,14 @@ class TicTacToe extends Component {
                     <button type="submit">Подтвердить</button>
                 </form>
         }
-
+        let joinGameSessionInput;
+        if (!this.state.start && this.state.checkNameSubmited && !this.state.sessionCreate) {
+            joinGameSessionInput = 
+                <div>
+                    <input type='text' placeholder='Введите код' value={this.state.sessionCode} onChange={this.ChangeJoin}/>
+                    <button type='submit' onClick={this.joinGameSession}>Подключиться</button>
+                </div>
+        }
         //Рендер игровой сессии
         let renderCreateGameSession;
         if (!this.state.start && this.state.checkNameSubmited) {
@@ -130,8 +149,8 @@ class TicTacToe extends Component {
             <div>
                 <form onSubmit={this.SubmitGame}>
                     {buttonCreate}
-                    <input type='text' placeholder='Введите код' value={this.state.sessionCode} onChange={this.ChangeJoin}/>
-                    <button type='submit' onClick={this.joinGameSession}>Подключиться</button>
+                    {/*<button type='submit' onClick={this.joinGameSession}>Подключиться</button>*/}
+                    {joinGameSessionInput}
                 </form>
             </div>
         }
@@ -158,12 +177,13 @@ class TicTacToe extends Component {
         if (this.state.start) {
             renderGame = 
                 <div className="gameBoard">
-                    <h2>Вы: {this.state.playerName}</h2>
+                    <h2>Вы: <span>{this.state.playerName}</span> Ваш противник: <span>{this.state.enemyPlayer}</span></h2>
                     {win}
                     <h3>Очередь игрока: <span>{this.state.currentPlayer}</span></h3>
                     <Board 
                         socket={this.socket}
-                        sessionCode={this.state.sessionCode} 
+                        sessionCode={this.state.sessionCode}
+                        currentTurnPlayer={this.currentTurnPlayer} 
                     />
                     <div>
                         <Chat 

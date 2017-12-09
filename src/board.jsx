@@ -26,11 +26,17 @@ export default class Board extends Component {
 			this.setState({
 				board: data.gameBoard,
 				turns: currentTurns
-			})
+			});
+			if (data.playerInfo["playerOne"]["currentTurn"] === false) {
+				this.props.currentTurnPlayer(data.playerInfo["playerTwo"]["name"]);
+			} else if (data.playerInfo["playerTwo"]["currentTurn"] === false) {
+				this.props.currentTurnPlayer(data.playerInfo["playerOne"]["name"])
+			}
 		})
 	}
 
 	clickTile = (e) => {
+
 		e.preventDefault();
 			if (this.state.turns) {
 				this.state.socket.emit('click', {
