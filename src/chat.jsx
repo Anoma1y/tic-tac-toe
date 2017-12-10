@@ -49,7 +49,7 @@ export default class Chat extends Component {
     })
     return (
     	<div className="chat_block">
-        	<input type='text' placeholder='Введите сообщение' onKeyUp={this.sendMsg} />
+        	<input type='text' placeholder='Enter для отправки сообщения...' onKeyUp={this.sendMsg} />
         	{renderMessage}
         </div>
     )

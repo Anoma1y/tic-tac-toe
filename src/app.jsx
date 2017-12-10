@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
+import Sound from 'react-sound';
 import Board from './board.jsx';
 import Chat from './chat.jsx';
 
