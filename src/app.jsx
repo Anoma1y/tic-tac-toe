@@ -42,31 +42,41 @@ class TicTacToe extends Component {
         });
 
         this.socket.on('game end', (data) => {
-            let winnerName;
+            let winnerName = '';
             //Условие добавления имени победителя, если имеется ключ draw, то ничья
-            let count = 0;
-            if (Object.keys(data.player).indexOf("draw") != -1) {
-                winnerName = data.player.draw;
-                this.setState({ 
-                    countDraw: this.state.countDraw + 1 
-                });
-
-            } else {
-                winnerName = data.player.name;
-                if (this.state.playerName != data.player.name) {
+            if (Object.keys(data).indexOf("player") != -1) {
+                if (Object.keys(data["player"]).indexOf("draw") != -1) {
+                    winnerName = data.player.draw;
+                    console.log(data);
+                    console.log(data["player"]);
+                    console.log(data["player"]["draw"])
                     this.setState({ 
-                        countWinsEnemy: this.state.countWinsEnemy + 1 
-                    });
-                }  else if (this.state.playerName == data.player.name) {
-                    this.setState({ 
-                        countWins: this.state.countWins + 1 
-                    });
-                } 
+                        countDraw: this.state.countDraw + 1 
+                    });                    
+                }
+            } 
+            //Условие срабатывает когда противник отключается от игры
+            if (Object.keys(data).indexOf("disconnect") != -1) {
+                winnerName = data.disconnect;
             }
+            if (Object.keys(data).indexOf("player") != -1) {
+                if (Object.keys(data["player"]).indexOf("name") != -1) {
+                    winnerName = data["player"]["name"];
+                    if (this.state.playerName != data["player"]["name"]) {
+                        this.setState({ 
+                            countWinsEnemy: this.state.countWinsEnemy + 1 
+                        });
+                    }  else if (this.state.playerName == data["player"]["name"]) {
+                        this.setState({ 
+                            countWins: this.state.countWins + 1 
+                        });
+                    } 
+                }
+
+            } 
             this.setState({
                 winner: winnerName
             });
-            count=0;
             this.socket.emit('reset board', this.state);
         });
     }

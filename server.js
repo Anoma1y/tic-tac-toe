@@ -154,6 +154,7 @@ io.on('connection', (socket) => {
 			delete sessionGame[data.sessionCode];
 			delete victory["player"];
 			delete victory["draw"];
+			delete victory["disconnect"];
 			//Создание нового объекта - игровой сессии
 			sessionGame[data.sessionCode] = {};
 			//Отрисовка нового игрового поля
@@ -194,24 +195,26 @@ io.on('connection', (socket) => {
 	});
 	socket.on('reset board', (data) => {
 		//need fix
-		sessionGame[data.sessionCode].gameBoard = drawBoard();
-		let playerOne = sessionGame[data.sessionCode]["player1"];
-		let playerTwo = sessionGame[data.sessionCode]["player2"];
-		playerOne["currentCombo"] = 0;
-		playerOne["currentTurn"] = true;
-		playerTwo["currentCombo"] = 0;
-		sessionGame[data.sessionCode]["moves"] = 0;
-		socket.join(data);
-		delete victory["player"];
-		delete victory["draw"];
-		io.in(data.sessionCode).emit('update board', {
-			gameBoard: sessionGame[data.sessionCode].gameBoard,
-			playerInfo: {
-				playerOne: playerOne,
-				playerTwo: playerTwo
-			}
-		});
-
+		if (Object.keys(sessionGame).indexOf(data.sessionCode) != -1) {
+			sessionGame[data.sessionCode].gameBoard = drawBoard();
+			let playerOne = sessionGame[data.sessionCode]["player1"];
+			let playerTwo = sessionGame[data.sessionCode]["player2"];
+			playerOne["currentCombo"] = 0;
+			playerOne["currentTurn"] = true;
+			playerTwo["currentCombo"] = 0;
+			sessionGame[data.sessionCode]["moves"] = 0;
+			socket.join(data);
+			delete victory["player"];
+			delete victory["draw"];
+			delete victory["disconnect"];
+			io.in(data.sessionCode).emit('update board', {
+				gameBoard: sessionGame[data.sessionCode].gameBoard,
+				playerInfo: {
+					playerOne: playerOne,
+					playerTwo: playerTwo
+				}
+			});			
+		}
 	})
 	socket.on('click', (data) => {
 		let playerOne = sessionGame[data.sessionCode]["player1"];
@@ -250,6 +253,19 @@ io.on('connection', (socket) => {
 			}
 		});
 
+	});
+	socket.on('disconnect', () => {
+		console.log('disconnected!');
+		Object.keys(sessionGame).forEach((code) => {
+			if (sessionGame[code.toString()]["player1"]["socketID"] === socket.id || sessionGame[code.toString()]["player2"]["socketID"] === socket.id) {
+				const disconnectMessage = {disconnect: "Противник отключился"};
+				victory["disconnect"] = disconnectMessage;
+				io.in(code).emit('game end', victory["disconnect"]);
+				// delete sessionGame[code];
+			}
+			//todo
+			//нужно добавить удаление сессии из объекта и очистить поле
+		});
 	});
 	//Получение сообщения и отправка его только второму игроку
 	socket.on('message', (data) => {
