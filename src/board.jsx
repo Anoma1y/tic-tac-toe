@@ -58,90 +58,90 @@ export default class Board extends Component {
 				<tbody>
 					<tr>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_00"
 								onClick={this.clickTile}
 							>
 							{this.state.board[0][0]}
 							{this.state.sfx}
-							</button>
+							</div>
 						</td>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_01"
 								onClick={this.clickTile}
 							>
 							{this.state.board[0][1]}
-							</button>
+							</div>
 						</td>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_02"
 								onClick={this.clickTile}
 							>
 							{this.state.board[0][2]}
-							</button>
+							</div>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_10"
 								onClick={this.clickTile}
 							>
 							{this.state.board[1][0]}
-							</button>
+							</div>
 						</td>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_11"
 								onClick={this.clickTile}
 							>
 							{this.state.board[1][1]}
-							</button>
+							</div>
 						</td>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_12"
 								onClick={this.clickTile}
 							>
 							{this.state.board[1][2]}
-							</button>
+							</div>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_20"
 								onClick={this.clickTile}
 							>
 							{this.state.board[2][0]}
-							</button>
+							</div>
 						</td>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_21"
 								onClick={this.clickTile}
 							>
 							{this.state.board[2][1]}
-							</button>
+							</div>
 						</td>
 						<td>
-							<button 
+							<div 
 								className="tile" 
 								id="tile_22"
 								onClick={this.clickTile}
 							>
 							{this.state.board[2][2]}
-							</button>
+							</div>
 						</td>
 					</tr>
 				</tbody>
