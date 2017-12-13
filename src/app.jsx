@@ -13,6 +13,9 @@ class TicTacToe extends Component {
             sessionCode: '',
             start: false,
             playerName: '',
+            countWins: 0,
+            countWinsEnemy: 0,
+            countDraw: 0,
             checkNameSubmited: false,
             winner: "",
             createButton: false,
@@ -41,18 +44,32 @@ class TicTacToe extends Component {
         this.socket.on('game end', (data) => {
             let winnerName;
             //Условие добавления имени победителя, если имеется ключ draw, то ничья
+            let count = 0;
             if (Object.keys(data.player).indexOf("draw") != -1) {
                 winnerName = data.player.draw;
+                this.setState({ 
+                    countDraw: this.state.countDraw + 1 
+                });
+
             } else {
                 winnerName = data.player.name;
+                if (this.state.playerName != data.player.name) {
+                    this.setState({ 
+                        countWinsEnemy: this.state.countWinsEnemy + 1 
+                    });
+                }  else if (this.state.playerName == data.player.name) {
+                    this.setState({ 
+                        countWins: this.state.countWins + 1 
+                    });
+                } 
             }
             this.setState({
-                winner: winnerName,
+                winner: winnerName
             });
+            count=0;
             this.socket.emit('reset board', this.state);
         });
     }
-
     //Функция рандома (от и до)
     random = (min, max) => Math.round((Math.random() * max - min) + min)
     
@@ -188,6 +205,7 @@ class TicTacToe extends Component {
                     <h2>Вы: <span>{this.state.playerName}</span> Ваш противник: <span>{this.state.enemyPlayer}</span></h2>
                     {win}
                     <h3>Очередь игрока: <span>{this.state.currentPlayer}</span></h3>
+                    <h4>Количество побед:  <span>Вы - {this.state.countWins}</span><span>Ничья - {this.state.countDraw}</span> <span>Противник - {this.state.countWinsEnemy}</span></h4>
                     <Board 
                         socket={this.socket}
                         sessionCode={this.state.sessionCode}
