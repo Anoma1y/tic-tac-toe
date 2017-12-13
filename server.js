@@ -44,9 +44,12 @@ class Player {
 	    let rows = parseInt(data.tile_id.split('_')[1][0], 10);
 	    let cols = parseInt(data.tile_id.split('_')[1][1], 10);
 	    let value = parseInt(data.tile_id.split('_')[1]);
+
 	    updateBoard(value, data);
+	    let sessionCode = data.sessionCode;
 	    if (checkTurn) {
-	    	this.bitwiseShift([rows, cols]);
+	    	let ShiftArr = [rows, cols];
+	    	this.bitwiseShift(ShiftArr, sessionCode);
 	    }
 	}
 
@@ -54,19 +57,20 @@ class Player {
 	*@param arr массив, который содержит текущее значение строки и столбца
 	*@return вызывает функцию для обновления комбинации
 	*/
-	bitwiseShift(arr) {
+	bitwiseShift(arr, sessionCode) {
 		let rows = arr[0];
 		let cols = arr[1];
-		this.updateCombination(1 << ((rows * 3) + cols));
+		let value = 1 << ((rows * 3) + cols);
+		this.updateCombination(value, sessionCode);
 	}
 
 	/**Обновление комбинации
 	*@param val текущее значение
 	*@return вызывает функцию для проверки победной комбинации
 	*/
-	updateCombination(val) {
+	updateCombination(val, sessionCode) {
 		this.currentCombo += val;
-		this.checkWinner();			
+		this.checkWinner(sessionCode);			
     }
 
     //Вывод текущей комбинации
@@ -79,18 +83,20 @@ class Player {
 	* @param currentPlayer текущий игрок
 	* @return вызывает функцию winnerAnnounce() для анонса победителя
 	*/
-	checkWinner() {
+	checkWinner(sessionCode) {
 		//Текущая комбинацияя
-		console.log(this.getCurrentCombination())
 		// console.log(currentPlayer);
 		let currentPlayerPosition = this.getCurrentCombination();
 		//Цикл проверки, если совпадает = конец игры + анонс победителя
-		WINNINGCOMBINATIONS.forEach((winCombination) => {
-			if ((winCombination & currentPlayerPosition) === winCombination) {
-				//вызов метмода анонса победителя с экземпляра класса Игра
-				this.winnerAnnounce(this);	
-			}
-		});
+			WINNINGCOMBINATIONS.forEach((winCombination) => {
+				if ((winCombination & currentPlayerPosition) === winCombination) {
+					//вызов метмода анонса победителя с экземпляра класса Игра
+					this.winnerAnnounce(this);	
+				} else if ((sessionGame[sessionCode]["moves"] == 9) && ((winCombination & currentPlayerPosition) !== winCombination)) {
+					const tieMessage = {draw: "Ничья"};
+					this.winnerAnnounce(tieMessage);					
+				}
+			});			
 	}
 
 	/**
@@ -99,8 +105,12 @@ class Player {
 	* @return создает из переменной curr (текущий игрок) копию объекта victory - победителя
 	*/
 	winnerAnnounce(curr) {
-		victory["player"] = curr;
-	}
+		if (typeof curr === "object") {
+			victory["player"] = curr;
+		} else {
+			victory["draw"] = curr;
+		}
+	}	
 }
 
 /**
@@ -122,6 +132,7 @@ function updateBoard(val, data) {
 				sessionGame[data.sessionCode].gameBoard[i][j] = currentPlayer.char;
 				//Переключение возможности хода
 				currentPlayer.currentTurn = false;
+				sessionGame[data.sessionCode]["moves"] += 1;
 			}
   		}
   	}
@@ -142,10 +153,12 @@ io.on('connection', (socket) => {
 		if (data.sessionCode) {
 			delete sessionGame[data.sessionCode];
 			delete victory["player"];
+			delete victory["draw"];
 			//Создание нового объекта - игровой сессии
 			sessionGame[data.sessionCode] = {};
 			//Отрисовка нового игрового поля
 			sessionGame[data.sessionCode].gameBoard = drawBoard();
+			sessionGame[data.sessionCode]["moves"] = 0;
 			//Создание объекта игрока 1
 			sessionGame[data.sessionCode]["player1"] = new Player(data.name, 1, 'X',  socket.id, true);
 			//Для данной сессии текущим игроком (ходит первым) является игрок 1
@@ -183,8 +196,10 @@ io.on('connection', (socket) => {
 		playerOne["currentCombo"] = 0;
 		playerOne["currentTurn"] = true;
 		playerTwo["currentCombo"] = 0;
+		sessionGame[data.sessionCode]["moves"] = 0;
 		socket.join(data);
 		delete victory["player"];
+		delete victory["draw"];
 		io.in(data.sessionCode).emit('update board', {
 			gameBoard: sessionGame[data.sessionCode].gameBoard,
 			playerInfo: {
@@ -238,10 +253,10 @@ io.on('connection', (socket) => {
 			playerName: data.playerName,
 			text: data.text
 		})
-	})
+	});
 })
 
 app.use(express.static(__dirname + '/dist'));
 app.use(webpackDevMiddleware(webpack(webpackConfig)));
-server.listen(PORT);
-console.log(`Server listening on port  ${PORT}`);
+server.listen(3000);
+// console.log(`Server listening on port  ${PORT}`);

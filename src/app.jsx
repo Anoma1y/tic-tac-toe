@@ -39,8 +39,15 @@ class TicTacToe extends Component {
         });
 
         this.socket.on('game end', (data) => {
+            let winnerName;
+            //Условие добавления имени победителя, если имеется ключ draw, то ничья
+            if (Object.keys(data.player).indexOf("draw") != -1) {
+                winnerName = data.player.draw;
+            } else {
+                winnerName = data.player.name;
+            }
             this.setState({
-                winner: data.player.name,
+                winner: winnerName,
             });
             this.socket.emit('reset board', this.state);
         });
