@@ -171,16 +171,20 @@ io.on('connection', (socket) => {
 	socket.on('join session', (data) => {
 		//В сессии могут быть лишь 2 человека
 		if (Object.keys(sessionGame).indexOf(data.sessionCode) != -1) {
-			if (!sessionGame[data.sessionCode].hasOwnProperty("player2")) {
-				currentPlayer = sessionGame[data.sessionCode]["player1"];
-				sessionGame[data.sessionCode]["player2"] = new Player(data.name, 2, 'O',  socket.id, false);
-				socket.join(data.sessionCode);
-				io.in(data.sessionCode).emit('game start', {
-					playerOneName: sessionGame[data.sessionCode]["player1"].name,
-					playerTwoName: sessionGame[data.sessionCode]["player2"].name
-				});			
+			if (socket.id !== sessionGame[data.sessionCode]['player1']["socketID"]) {
+				if (!sessionGame[data.sessionCode].hasOwnProperty("player2")) {
+					currentPlayer = sessionGame[data.sessionCode]["player1"];
+					sessionGame[data.sessionCode]["player2"] = new Player(data.name, 2, 'O',  socket.id, false);
+					socket.join(data.sessionCode);
+					io.in(data.sessionCode).emit('game start', {
+						playerOneName: sessionGame[data.sessionCode]["player1"].name,
+						playerTwoName: sessionGame[data.sessionCode]["player2"].name
+					});			
+				} else {
+					console.log("Сессия занята");
+				}				
 			} else {
-				console.log("Сессия занята");
+				console.log('Ожидайте 2 игрока');
 			}
 		} else {
 			console.log('Сессия не найдена');

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Oswald:200,300,400,500,600,700&subset=cyrillic')
+@import url('https://fonts.googleapis.com/css?family=Oswald:400,700');
 
 * {
 	box-sizing: border-box;
@@ -15,29 +15,88 @@ body {
 	min-width: 320px;
 	height: 100vh;
 	margin: 0 auto;
-	display: -webkit-flex;
-	display: -moz-flex;
-	display: -ms-flex;
-	display: -o-flex;
 	display: flex;
 	justify-content: center;
-	-ms-align-items: center;
-	-webkit-flex-direction: column-reverse;
-	-moz-flex-direction: column-reverse;
-	-ms-flex-direction: column-reverse;
-	-o-flex-direction: column-reverse;
-	flex-direction: column-reverse;
+	flex-direction: row;
 	align-items: center;
 }
 form {
-	padding: 20px 30px;
-	text-align: center;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	padding: 2em;
+	max-width: 50em;
 	border: 1px solid rgba(0,0,0,.2);
+	border-radius: 5px;
+	box-shadow: 0 0 5px -2px rgba(0,0,0,.2);
 	font-family: inherit;
+	animation: oppai 1s linear;
 }
-form button {
-
+label.username {
+	display: block;
 	width: 100%;
+	text-align: center;
+	font-size: 1.8em;
+	font-family: "Oswald", sans-serif;
+	margin-bottom: 1em;
+}
+label.game_session {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+label.game_session p {
+	font-size: 1.4em;
+	margin: 0;
+}
+label.game_session h2 {
+	font-size: 3em;
+	margin: 0;
+}
+
+button.create_session, input.input_code, button.join_session {
+	width: 100%;
+	padding: 10px 0;
+	background-color: #BBBFBD;
+	font-family: "Oswald", sans-serif;
+	font-size: 1.6em;
+	border: none;
+	text-align: center;
+	margin: 5px 0;
+}
+button.create_session {
+	margin-bottom: 50px;
+}
+input.user_input {
+	width: 66%;
+	padding: 10px 5px;
+	outline: none;
+	font-family: "Oswald", sans-serif;
+	border: none;
+	background-color: #BBBFBD;
+}
+button.user_button {
+	width: 33%;
+	font-family: "Oswald", sans-serif;
+	border: none;
+	background-color: #BBBFBD;
+	cursor: pointer;
+	font-weight: bold;
+	transition: background-color .3s ease;
+}
+button.user_button:hover {
+	background-color: #A7ABA9;
+}
+@keyframes oppai {
+	0% {
+    	opacity: 0;
+	}
+	100% {
+	    opacity: 1;
+	}
+}
+/*form button {
+
 	border: none;
 	font-family: inherit;
 	padding: 8px 10px;
@@ -51,18 +110,4 @@ form button {
 	-webkit-transition: background-color .3s ease;
 	transition: background-color .3s ease;
 } 
-form button:hover{
-	background-color: #444;
-
-}
-input[type="text"] {
-	border: none;
-	width: 70%;
-	padding: 10px 10px;
-	font-family: inherit;
-}
-button.tile {
-	width: 80px;
-	height: 80px;
-	font-size: 60px;
-}
+*/

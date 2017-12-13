@@ -142,52 +142,38 @@ class TicTacToe extends Component {
 
     render() {
 
-        //Рендер поля для ввода имени (никнейма)
-        let buttonCreate;
-        if (!this.state.createButton) {
-            buttonCreate =
-                <button onClick={this.createGameSession}>Создать новую игровую сессию</button>
-        }
-
         //Рендер поля для ввода имени
         let renderNameInput;
         if (!this.state.checkNameSubmited) {
             renderNameInput =
                 <form onSubmit={this.SubmitName}>
-                    <h1>Введите имя</h1>
-                    <input type="text" placeholder='Введите имя' value={this.state.playerName} onChange={this.ChangeName} />
-                    <button type="submit">Подтвердить</button>
+                    <label className="username">Введите имя</label>
+                    <input type="text" value={this.state.playerName} className="user_input" onChange={this.ChangeName} />
+                    <button type="submit" className="user_button">Подтвердить</button>
                 </form>
-        }
-        let joinGameSessionInput;
-        if (!this.state.start && this.state.checkNameSubmited && !this.state.sessionCreate) {
-            joinGameSessionInput = 
-                <div>
-                    <input type='text' placeholder='Введите код' value={this.state.sessionCode} onChange={this.ChangeJoin}/>
-                    <button type='submit' onClick={this.joinGameSession}>Подключиться</button>
-                </div>
-        }
-        //Рендер игровой сессии
-        let renderCreateGameSession;
-        if (!this.state.start && this.state.checkNameSubmited) {
-            renderCreateGameSession =
-            <div>
-                <form onSubmit={this.SubmitGame}>
-                    {buttonCreate}
-                    {/*<button type='submit' onClick={this.joinGameSession}>Подключиться</button>*/}
-                    {joinGameSessionInput}
-                </form>
-            </div>
         }
 
         //Ренден созданной игровой сессии + номер сессии
         let renderGameSession;
         if(this.state.sessionCode !== '' && !this.state.start) {
             renderGameSession =
-                <div>
-                    <span>Номер игровой сессии: </span><h2>{this.state.sessionCode}</h2>
-                    <p>Ожидайте 2 игрока...</p>
-                </div>
+                <label className="game_session">
+                    <p>Номер игровой сессии: </p>
+                    <h2>{this.state.sessionCode}</h2>
+                    <p>Ожидайте 2 игрока</p>
+                </label>
+        }
+
+        //Рендер игровой сессии
+        let renderCreateGameSession;
+        if (!this.state.start && this.state.checkNameSubmited ) {
+            renderCreateGameSession =
+            <form onSubmit={this.SubmitGame}>
+                <button onClick={this.createGameSession} className="create_session">Создать игровую сессию</button>
+                {renderGameSession}
+                <input type='text' placeholder='Введите код' value={this.state.sessionCode} onChange={this.ChangeJoin} className="input_code"/>
+                <button type='submit' className="join_session" onClick={this.joinGameSession}>Подключиться</button>
+            </form>
         }
 
         //Вывести победителя если игра завершена
@@ -225,7 +211,6 @@ class TicTacToe extends Component {
             <div className="container">
                 { renderNameInput }
                 { renderCreateGameSession }
-                { renderGameSession }
                 { renderGame }
             </div>
         )
